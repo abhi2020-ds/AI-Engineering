@@ -1,0 +1,11 @@
+Installation and Configuration
+
+To use this RAG example, install the required Python dependencies and configure your environment variables. The notebook expects a `.env` file with `NVIDIA_API_KEY` set.
+
+Typical setup steps:
+1. Create a Python virtual environment
+2. Install dependencies from `pyproject.toml`
+3. Add `NVIDIA_API_KEY` to `.env`
+4. Run `rag_example.ipynb` to build the index and execute queries
+
+The project uses `langchain`, `llama-index-core`, and NVIDIA-specific embedding and LLM integration packages.

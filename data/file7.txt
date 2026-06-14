@@ -1,0 +1,440 @@
+# Vector Databases for RAG Systems
+
+Vector databases are essential for building RAG applications. They store and retrieve vector embeddings efficiently.
+
+## Popular Vector Databases
+
+### 1. Pinecone
+
+Managed cloud-based vector database with scalability.
+
+```python
+import pinecone
+import requests
+
+# Initialize connection
+pinecone.init(
+    api_key=os.environ['PINECONE_API_KEY'],
+    environment='us-west1-pinecone',
+    host='api.pinecone.io'
+)
+
+# Create index
+index = pinecone.Index('my-ai-index')
+
+# Upsert documents
+vectors = [
+    ["vector1_0.1_0.2", "vector2_0.3_0.4"],
+    "Document content here",
+    "Metadata: {author: 'Alice'}"
+]
+index.upsert(vectors=vectors)
+
+# Query
+results = index.query(
+    vector=[0.1, 0.2, 0.7],
+    top_k=5,
+    include_metadata=True,
+    filter={"section": ["Features"]}
+)
+```
+
+### 2. Qdrant
+
+Open-source vector database with hybrid search capabilities.
+
+```python
+from qdrant_client import QdrantClient
+
+# Initialize
+client = QdrantClient(
+    location="https://your-location.qdrant.io",
+    api_key=os.environ['QDRANT_API_KEY']
+)
+
+# Create collection
+collection = client.create_collection(
+    collection_name="my_rag_db",
+    vectors_config=qdrant_proto.VectorParams(
+        size=768,
+        distance=qdrant_proto.Distance.COSINE
+    )
+)
+
+# Add points
+points = qdrant_proto.PointStructs(
+    id="1",
+    vector=[0.1, 0.2, 0.7],
+    payload={"document_id": "doc_123", "content": "Hello world"}
+)
+client.upload_points(collection_name="my_rang_db", points=points)
+
+# Search
+results = client.search(
+    collection_name="my_rag_db",
+    query_vector=[0.1, 0.2, 0.7],
+    limit=5,
+    score_threshold=0.7
+)
+```
+
+### 3. Milvus (Apache Milvus)
+
+Enterprise-grade open-source vector database.
+
+```python
+from pymilvus import Collection, FieldSchema, Connection
+
+# Connect to Milvus
+collection = Collection("my_rag_collection", connection)
+
+# Create fields
+fields = [
+    FieldSchema(name="id", dtype=FieldSchema.INT64, is_primary=True),
+    FieldSchema(name="vector", dtype=FieldSchema.FLOAT_VECTOR, dim=768),
+    FieldSchema(name="content", dtype=FieldSchema.VARCHAR, max_length=65535),
+    FieldSchema(name="metadata", dtype=FieldSchema.JSON),
+]
+collection.insert(
+    id_field=["0"],
+    vector=[[0.1, 0.2, 0.7]],
+    content=["Hello world"],
+    metadata={"author": "Alice"}
+)
+
+# Search
+results = collection.search(
+    data=[[0.1, 0.2, 0.7]],
+    anns_field="vector",
+    params={"metric_type": "COSINE", "nprobe": 128},
+    limit=5
+)
+```
+
+### 4. pgvector (PostgreSQL Extension)
+
+Store vectors directly in PostgreSQL with SQL queries.
+
+```python
+import psycopg2
+import psycopg2.extras
+
+# Connect to PostgreSQL
+conn = psycopg2.connect(
+    host="localhost",
+    database="my_db",
+    user="my_user",
+    password="my_password"
+)
+cur = conn.cursor()
+
+# Create vector type (requires pgvector extension)
+cur.execute("SELECT create_vector_extension()")
+cur.execute("CREATE TABLE documents (id SERIAL PRIMARY KEY, content TEXT, vector VECTOR(768))")
+
+# Insert documents
+cur.execute("""
+    INSERT INTO documents (content, vector)
+    VALUES (%(content)s, %%(vector)s)
+""", {"content": "Hello world", "vector": [0.1, 0.2, 0.7]})
+
+# Query using pgvector similarity
+cur.execute("""
+    SELECT id, content, vector <=> %s as similarity
+    FROM documents
+    ORDER BY similarity
+    LIMIT 5
+""", [vector])
+
+# Vector similarity search
+cur.execute("""
+    SELECT id, content, 1 - vector <=> %(query_vector)s as similarity
+    FROM documents
+    ORDER BY similarity DESC
+    LIMIT 5
+""", {"query_vector": query_vector})
+```
+
+### 5. Redis (RedisJSON + RedisStack)
+
+Redis can be used for simple vector storage with FLATTEN vector representation.
+
+```python
+import redis
+import numpy as np
+
+# Connect to Redis
+r = redis.Redis(host='localhost', port=6379, db=0)
+
+# Store vector (encoded as JSON string)
+data = {
+    "vector": list(vector),
+    "content": "Document content",
+    "metadata": {"author": "Alice", "date": "2024-01-01"}
+}
+r.set(f"doc:{doc_id}", json.dumps(data))
+
+# Cosine similarity calculation
+def cosine_similarity(vec1, vec2):
+    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+
+# Find similar documents
+similar_docs = [
+    (doc_id, cosine_similarity([0.1, 0.2, 0.7], get_vector(doc_id)))
+    for doc_id in r.keys("doc:*")
+]
+
+# Sort and get top results
+similar_docs.sort(key=lambda x: x[1], reverse=True)
+top_docs = similar_docs[:5]
+```
+
+## Vector Search Strategies
+
+### 1. Exact Search (Brute Force)
+
+```python
+# Linear scan through all vectors
+def exact_search(query_vector, all_vectors, top_k=5):
+    similarities = []
+
+    for i, (id_, vector) in enumerate(all_vectors):
+        similarity = cosine_similarity(query_vector, vector)
+        similarities.append((id_, similarity, metadata))
+
+    # Sort by similarity
+    similarities.sort(key=lambda x: x[1], reverse=True)
+
+    return similarities[:top_k]
+```
+
+### 2. HNSW (Hierarchical Navigable Small World)
+
+Hierarchical index for fast approximate nearest neighbor search.
+
+```python
+from hnswlib import HNSWLib
+
+# Initialize index
+hnsw = HNSWLib(
+    dim=768,
+    max_elements=100000,
+    ef_construction=200,
+    M=16
+)
+
+# Add vectors
+for vector in all_vectors:
+    hnsw.add(vector, [vector_id])
+
+# Search
+labels, distances = hnsw.search(query_vector, k=5)
+
+# Get results
+results = [
+    (all_vectors[labels[i]], distances[i])
+    for i in range(len(labels))
+]
+```
+
+### 3. IVF (Inverted File Index)
+
+Divide vectors into clusters, search only relevant clusters.
+
+```python
+from faiss import IndexIVF
+
+# Create IVF index
+index = IndexIVF(768, faiss.GpuClonerSwapping(), nprobe=32)
+
+# Train on sample data
+samples = np.random.randn(50000, 768)
+index.train(samples)
+
+# Add vectors
+index.add(all_vectors)
+
+# Search
+D, I = index.search(query_vector, k=5)
+
+# Score combining vector similarity and metadata relevance
+results = [
+    (all_vectors[I[i][j]], D[i][j], compute_metadata_score(metadata[I[i][j]]))
+    for i in range(len(I))
+    for j in range(len(I[i]))
+]
+```
+
+## Vector Dimensionality Reduction
+
+### Principal Component Analysis (PCA)
+
+```python
+from sklearn.decomposition import PCA
+
+# Reduce from high-dimensional to lower-dimensional
+pca = PCA(n_components=50)
+reduced_vectors = pca.fit_transform(high_dim_vectors)
+
+# For compression or visualization
+```
+
+### t-SNE
+
+```python
+from sklearn.manifold import TSNE
+
+tsne = TSNE(n_components=2, perplexity=30)
+tsne_vectors = tsne.fit_transform(high_dim_vectors)
+
+# Good for visualization
+```
+
+### UMAP
+
+```python
+from umap import UMAP
+
+umap = UMAP(n_components=2)
+umap_vectors = umap.fit_transform(high_dim_vectors)
+```
+
+## Vector Database Comparison
+
+| Database | Type | Pros | Cons | Best For |
+|----------|------|------|------|----------|
+| Pinecone | Managed | Easy setup, scalable | Paid | Production RAG apps |
+| Qdrant | Self-hosted | Hybrid search, filtering | Setup complexity | Complex queries |
+| Milvus | Self-hosted | Highly scalable | Complex setup | Enterprise apps |
+| pgvector | PostgreSQL | SQL integration | Limited indexing | Data warehouses |
+| Redis | Cache-based | Fast access | Not for large-scale | Caching, real-time |
+
+## Vector Similarity Metrics
+
+### Cosine Similarity
+
+```python
+def cosine_similarity(vec1, vec2):
+    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+```
+
+### Euclidean Distance
+
+```python
+def euclidean_distance(vec1, vec2):
+    return np.sqrt(np.sum((np.array(vec1) - np.array(vec2)) ** 2))
+```
+
+### Dot Product
+
+```python
+def dot_product_similarity(vec1, vec2):
+    return np.dot(vec1, vec2)
+```
+
+## Chunking Strategies for Vector Search
+
+### 1. Fixed Size Chunks
+
+```python
+def chunk_by_size(text, chunk_size=500, chunk_overlap=50):
+    chunks = []
+    current_chunk = []
+
+    for word in text.split():
+        current_chunk.append(word)
+        if len(" ".join(current_chunk)) > chunk_size:
+            chunks.append(" ".join(current_chunk[:-1]))
+            current_chunk = []
+
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
+
+    return chunks
+```
+
+### 2. Semantic Chunking
+
+```python
+from langchain.text_splitter import SemanticChunker
+
+text_splitter = SemanticChunker(embedding_model)
+
+chunks = text_splitter.create_text_splits(
+    text=full_text,
+    breakpoint_threshold=0.95
+)
+```
+
+### 3. Recursive Chunking
+
+```python
+def recursive_chunking(text, min_chunk_size=200):
+    paragraphs = text.split('\n\n')
+    chunks = []
+    current_chunk = ""
+
+    for paragraph in paragraphs:
+        current_chunk += paragraph + "\n\n"
+
+        if len(current_chunk) >= min_chunk_size:
+            chunks.append(current_chunk)
+            current_chunk = ""
+
+    if current_chunk:
+        chunks.append(current_chunk)
+
+    return chunks
+```
+
+### 4. Metadata-Based Chunking
+
+```python
+def metadata_chunking(text, metadata_dict):
+    chunks = []
+    chunks_metadata = []
+
+    for key, (text_part, meta_part) in metadata_dict.items():
+        chunks.append({
+            "text": text_part,
+            "metadata": meta_part
+        })
+        chunks_metadata.append(meta_part)
+
+    return chunks, chunks_metadata
+```
+
+## Hybrid Search
+
+```python
+def hybrid_search(query_vector, query_text, index_vector, index_text):
+    # Vector search results
+    vector_results = index_vector.search(query_vector, top_k=10)
+
+    # Keyword search results
+    keyword_results = index_text.search(query_text, top_k=10, fields=['title', 'content'])
+
+    # Combine scores using BM25 + vector similarity
+    final_results = []
+
+    for vec_result, kw_result in zip(vector_results, keyword_results):
+        combined_score = 0.5 * vec_result.score + 0.5 * bm25_score(kw_result)
+        final_results.append({
+            "document_id": vec_result.document_id,
+            "combined_score": combined_score,
+            "vector_score": vec_result.score,
+            "keyword_score": bm25_score(kw_result)
+        })
+
+    return sorted(final_results, key=lambda x: x['combined_score'], reverse=True)[:5]
+```
+
+## Best Practices
+
+1. **Choose the right database** based on your needs (managed vs self-hosted, scale, features)
+2. **Optimize for your use case** (dense vectors for semantics, sparse for keywords)
+3. **Use appropriate similarity metric** (cosine for most text embeddings)
+4. **Test with real queries** before production
+5. **Monitor query latency** and adjust index parameters
+6. **Implement proper indexing** (HNSW for performance)
+7. **Set appropriate score thresholds** for filtering results

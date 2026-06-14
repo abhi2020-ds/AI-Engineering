@@ -1,0 +1,301 @@
+# Common API Design Mistakes to Avoid
+
+When designing APIs, watch out for these common mistakes:
+
+## 1. Verb-Noun Mismatch
+
+### Mistake:
+```python
+# Using POST for retrieval
+POST /user/details
+
+# Or using GET with action verbs
+GET /get /fetch /retrieval
+```
+
+### Correct:
+```python
+GET /users        # Retrieval
+POST /users       # Creation
+PUT /users/123    # Update
+DELETE /users/123 # Deletion
+```
+
+## 2. Putting Data in Wrong Format
+
+### Mistake:
+```python
+# Query parameters for pagination
+GET /items?page=1&limit=20
+
+# Query parameters for filtering (when GET expected)
+GET /users?active=true&role=admin
+```
+
+### Correct:
+```python
+GET /users?active=true&role=admin
+
+# Body for payload data (POST/PUT/PATCH)
+POST /items
+{
+    "name": "Item",
+    "price": 9.99,
+    "tags": ["sale"]
+}
+```
+
+## 3. Inconsistent Resource Naming
+
+### Mistake:
+```python
+GET /order/order_id
+POST /createOrder
+GET /retrieveOrders
+PUT /modifyUser
+```
+
+### Correct:
+```python
+GET /orders/{order_id}
+POST /orders
+GET /orders
+PUT /orders/{order_id}
+DELETE /orders/{order_id}
+```
+
+## 4. Returning Wrong Status Codes
+
+### Mistake:
+```python
+# Returning 200 for errors
+GET /users
+Response: 200 - { "error": "Not found" }
+
+# Returning 405 for missing resource
+GET /deleted
+Response: 405 - { "error": "Resource deleted" }
+```
+
+### Correct:
+```python
+GET /users
+Response: 200 - { "users": [...] }
+Response: 404 - { "error": "User not found" }
+
+# Using 404 for missing resource
+GET /deleted
+Response: 404 - "Not Found"
+```
+
+## 5. Ignoring Pagination
+
+### Mistake:
+```python
+GET /products
+Response: All 50,000 products
+```
+
+### Correct:
+```python
+GET /products
+Response: {
+    "data": [...],
+    "pagination": {
+        "page": 1,
+        "page_size": 20,
+        "total": 50000,
+        "has_more": true
+    }
+}
+```
+
+## 6. Using Deep Nesting
+
+### Mistake:
+```python
+GET /orders/order_id/orders/order_id/products/product_id/images/image_id
+```
+
+### Correct:
+```python
+GET /orders/123
+GET /orders/123/items
+GET /orders/123/items/456/products
+```
+
+## 7. Missing Error Details
+
+### Mistake:
+```python
+Response: 400 - { "error": "Invalid input" }
+```
+
+### Correct:
+```python
+Response: 400 - {
+    "error": {
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid request",
+        "details": {
+            "field": "email",
+            "issues": ["must be valid email"]
+        }
+    }
+}
+```
+
+## 8. Not Handling Time Zones
+
+### Mistake:
+```python
+# Store and return timestamps as local time
+{
+    "created_at": "2024-01-15T10:30:00"
+}
+```
+
+### Correct:
+```python
+# Use ISO 8601 with timezone
+{
+    "created_at": "2024-01-15T10:30:00Z"
+}
+```
+
+## 9. Using Query Parameters for All Filters
+
+### Mistake:
+```python
+GET /users?active=true&role=admin&include_deleted=1&sort=created_at
+```
+
+### Correct:
+```python
+GET /users
+{
+    "active": true,
+    "role": "admin",
+    "include_deleted": false,
+    "sort_by": "created_at"
+}
+```
+
+## 10. Inconsistent Date Formats
+
+### Mistake:
+```python
+# Different formats across endpoints
+GET /users       // { "created": "2024-01-15", "updated": "2024-01-15T10:30:00" }
+GET /orders      // { "created_at": 1705312200, "updated_at": "Jan 15, 2024" }
+```
+
+### Correct:
+```python
+# ISO 8601 format everywhere
+GET /users
+{
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T10:30:00Z"
+}
+```
+
+## 11. Not Using Batch Operations
+
+### Mistake:
+```python
+# Deleting 1000 items individually
+DELETE /items/1
+DELETE /items/2
+...
+DELETE /items/1000
+```
+
+### Correct:
+```python
+DELETE /items/batch
+{
+    "item_ids": [1, 2, 3, ...]
+}
+```
+
+## 12. Exposing Sensitive Data
+
+### Mistake:
+```python
+GET /users/123
+Response: {
+    "password": "secret123",
+    "ssn": "123-45-6789",
+    ...
+}
+```
+
+### Correct:
+```python
+GET /users/123
+Response: {
+    "email": "user@example.com",
+    "name": "User Name",
+    ...
+}
+# Sensitive data hidden
+```
+
+## 13. No Consistent Field Names
+
+### Mistake:
+```python
+# Different names for the same concept
+{ "email": "test@test.com" }    # in users endpoint
+{ "mail": "test@test.com" }     # in orders endpoint
+```
+
+### Correct:
+```python
+# Consistent naming across all resources
+{
+    "user": {
+        "email": "test@test.com",
+        "id": 1
+    },
+    "order": {
+        "user_id": 1,
+        "created_at": "2024-01-15"
+    }
+}
+```
+
+## 14. Missing Rate Limiting
+
+### Mistake:
+```python
+# Unlimited access to expensive operations
+POST /generate-report  # Can run infinite times
+```
+
+### Correct:
+```python
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 99
+```
+
+## 15. Not Validating Input
+
+### Mistake:
+```python
+POST /items
+{
+    "price": -99.99  // Should reject negative prices
+}
+Response: 200 OK
+```
+
+### Correct:
+```python
+POST /items
+{
+    "price": -99.99
+}
+Response: 400 - { "error": "Price must be positive" }
+```
