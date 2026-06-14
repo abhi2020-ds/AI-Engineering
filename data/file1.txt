@@ -1,9 +1,10 @@
-AI Engineering Project Overview
+Project Overview
 
-This project demonstrates a retrieval-augmented generation (RAG) workflow using NVIDIA models and Llama Index. The goal is to index source documents from the `data/` folder, embed them with `nvidia/nv-embedqa-e5-v5`, and query them with an NVIDIA LLM using `openai/gpt-oss-120b`.
+This example project demonstrates a Retrieval-Augmented Generation (RAG) pipeline for the AI Engineering repository.
+It indexes local project documentation from the `data/` folder, creates embeddings with NVIDIA, and answers questions by retrieving the most relevant document chunks.
 
-Key features include:
-- Document loading and semantic indexing
-- Embedding model integration
-- Vector search powered by `VectorStoreIndex`
-- Notebook examples for interactive experimentation
+Main features:
+- Local text ingestion with `SimpleDirectoryReader("data")`
+- Chunking for model-safe embeddings
+- Semantic retrieval with `VectorStoreIndex`
+- Query answering through an NVIDIA-powered query engine

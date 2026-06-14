@@ -1,9 +1,9 @@
-Document Processing and Queries
+Pipeline and Architecture
 
-Documents are loaded with `SimpleDirectoryReader("data")` and must be chunked before embedding so the model never receives more than 512 tokens at once. The notebook uses `TokenTextSplitter` to split long documents into smaller chunks.
+The RAG workflow for this project follows these steps:
+1. Read files with `SimpleDirectoryReader("data")`.
+2. Split text using `TokenTextSplitter(chunk_size=150, chunk_overlap=30)`.
+3. Create `VectorStoreIndex` from the chunked nodes.
+4. Build a query engine with `similarity_top_k=7` and `response_mode="compact"`.
 
-After chunking, the pipeline creates a `VectorStoreIndex` and then converts it into a query engine. Example queries include:
-- "What are the main features of this project?"
-- "How do I implement a Retrieval Augmented Generation system with Python?"
-- "What dependencies are used for the RAG pipeline?"
-- "How do I install and configure this project?"
+This architecture keeps each embedding input under the NVIDIA token limit and ensures the query engine focuses on project-specific content.
