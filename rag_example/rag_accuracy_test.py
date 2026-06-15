@@ -12,7 +12,18 @@ embedder = NVIDIAEmbedding(model='nvidia/nv-embedqa-e5-v5')
 Settings.llm = llm
 Settings.embed_model = embedder
 
-docs = SimpleDirectoryReader('data').load_data()
+# Load documents from the RAG data directory
+cwd = Path.cwd()
+data_dir = cwd / "data"
+if not data_dir.exists():
+    data_dir = cwd / "rag_example" / "data"
+
+if not data_dir.exists():
+    raise FileNotFoundError(
+        f"Directory {data_dir} does not exist. Create it or update the path."
+    )
+
+docs = SimpleDirectoryReader(str(data_dir)).load_data()
 text_splitter = TokenTextSplitter(chunk_size=150, chunk_overlap=30)
 nodes = text_splitter.get_nodes_from_documents(docs)
 index = VectorStoreIndex(nodes, embed_model=embedder)
