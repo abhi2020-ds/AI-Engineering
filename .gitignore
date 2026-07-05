@@ -15,3 +15,10 @@ wheels/
 .ipynb_checkpoints
 .python-version
 uv.lock
+
+# Claude
+.claude/skills/__pycache__/
+.claude/skills/*.pyc
+.claude/skills/*.pyo
+.claude/skills/skills.md
+.claude/settings.json
