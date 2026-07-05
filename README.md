@@ -1,133 +1,206 @@
-# AI Engineering
+<div align="center">
+  <h3>AI Engineering</h3>
+  <p>
+    <strong>Patterns, tools, and examples for building modern AI applications</strong>
+  </p>
+  <div style="display: flex; gap: 1rem; justify-content: center; margin: 1rem 0;">
+    <a href="https://github.com/abs_1/AI-Engineering" target="_blank">
+      <img src="https://img.shields.io/badge/GitHub-Abs_1-blue?logo=github&style=for-the-badge" alt="GitHub: Abs_1" />
+    </a>
+    <img src="https://img.shields.io/badge/python-3.13+-blue?style=for-the-badge&logo=python" alt="Python 3.13+" />
+    <img src="https://img.shields.io/badge/langchain-latest-green?style=for-the-badge&logo=langchain" alt="LangChain" />
+    <img src="https://img.shields.io/badge/llama_index-latest-blue?style=for-the-badge&logo=meta" alt="LlamaIndex" />
+    <img src="https://img.shields.io/badge/nvidia%20ai%20endpoints-latest-orange?style=for-the-badge&logo=nvidia" alt="NVIDIA AI Endpoints" />
+    <img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge&logo=freedom" alt="MIT License" />
+  </div>
+</div>
 
-A comprehensive repository for learning AI engineering best practices, patterns, and implementation examples. This repository provides a clean structure for exploring and building AI applications using modern tools and frameworks.
+---
 
-## Overview
+## 📖 What is AI Engineering?
 
-**AI Engineering** is the core repository containing:
-- Core AI engineering patterns and best practices
-- Shared utilities and tools
-- Evaluation frameworks
-- Example implementations
+This repository is a collection of **patterns, tools, and examples** for building and deploying production-ready AI applications.
 
-### Quick Start
+Focus areas include:
+- **LLM Integration**: Working with LLMs via LangChain and LlamaIndex
+- **RAG Pipelines**: Retrieval Augmented Generation architectures
+- **Evaluation**: Testing and validating AI app behavior
+- **Observability**: Monitoring AI app performance and usage
 
-```bash
-# Clone the repository
-git clone <repo-url>
+---
 
-# Install dependencies
-uv sync --active
-
-# Set NVIDIA API key
-export NVIDIA_API_KEY="your-api-key"
-```
-
-## Repository Structure
+## 🏗️ Repository Structure
 
 ```
 AI Engineering/
-├── core/                          # Core AI engineering
-│   ├── data/                     # Core documentation
-│   │   ├── file1.txt             # Project overview & core concepts
-│   │   ├── file2.txt             # API design best practices
-│   │   ├── file3.txt             # Prompt engineering best practices
-│   │   ├── file4.txt             # Model selection guide
-│   │   ├── file5.txt             # Error handling strategies
-│   │   └── file6.txt             # Token management
-│   ├── notebooks/                # Core example notebooks
-│   │   └── (add your notebooks here)
-│   └── test/                     # Core test suite
-│       └── api_test.py           # API and configuration tests
-│
-├── rag_example/                  # RAG example (subfolder)
-│   ├── README.md                 # RAG example documentation
-│   ├── rag_example.ipynb         # RAG implementation example
-│   ├── rag_accuracy_test.py      # RAG accuracy testing
-│   └── data/                    # RAG-specific data files
-│       ├── file2.txt            # Setup and dependencies
-│       ├── file3.txt            # Pipeline and architecture
-│       ├── file4.txt            # Example questions
-│       ├── file5.txt            # Indexing and embedding details
-│       ├── file6.txt            # Accuracy and evaluation
-│       └── file7.txt            # Troubleshooting
-│
+├── rag_example/                  # RAG example
+│   ├── data/                    # Example data for testing RAG
+│   ├── rag_example.ipynb        # Interactive RAG notebook
+│   ├── rag_accuracy_test.py     # RAG evaluation tests
+│   └── README.md                # Example documentation
 ├── pyproject.toml               # Project configuration
-├── uv.lock                      # Locked dependency versions
-├── .env                         # Environment variables (API keys)
+├── .env                         # Environment variables (see .env.example)
 ├── .gitignore                   # Git ignore patterns
 └── README.md                    # This file
 ```
 
-## Getting Started
+### 📁 Adding New Examples
+
+New examples can be added as subfolders:
+
+```
+examples/
+├── rag_example/                 # RAG example
+├── chatbot/                    # Chat application
+├── classification/             # Classification tasks
+├── agent/                      # Agentic workflows
+└── your_new_example/           # Add your own example!
+```
+
+Each example should include:
+- `README.md` — Usage documentation
+- `*.ipynb` — Interactive notebook
+- `test_*.py` — Test suite
+- `data/` — Example data files (optional)
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python >= 3.13
+- [uv](https://github.com/astral-sh/uv) — Fast Python package manager
 
 ### Installation
 
 ```bash
-# Install dependencies
-uv sync --active
+# Clone the repository
+git clone <repo-url>
+cd "AI Engineering"
+
+# Create virtual environment and install dependencies
+uv venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+uv sync
 
 # Configure environment
-cp .env.example .env  # if available
-# Or edit .env directly:
-NVIDIA_API_KEY=your-api-key
+cp .env.example .env
+# Edit .env and add your NVIDIA API key
 ```
 
-### Running Examples
+### Run Examples
 
 ```bash
-# Run core examples
-jupyterlab core/notebooks/test_code.ipynb
+# Launch JupyterLab with all notebooks
+jupyter lab
 
-# Or run RAG example
-jupyterlab rag_example/rag_example.ipynb
+# Or run specific examples from CLI
+python -m your_example
 ```
 
-## Subfolders
+---
 
-### `/core` - Core AI Engineering
+## 📚 Key Features
 
-Core AI engineering concepts including:
-- **Patterns**: Design patterns, best practices, architectural guidelines
-- **Data**: Documentation on core AI concepts
-- **Notebooks**: Interactive examples for core concepts
-- **Test**: Test suite for validating core implementations
+### 🔬 Current Examples
 
-### `/rag_example` - RAG Example
+| Example | Description |
+|---------|-------------|
+| `/rag_example` | Complete RAG pipeline with NVIDIA models, chunking, embedding, and evaluation |
 
-A complete Retrieval Augmented Generation example:
-- Demonstrates a full RAG pipeline with NVIDIA models
-- Includes chunking, embedding, vector search, and query answering
-- Comprehensive test suite with accuracy validation
-- RAG-specific data files for testing
+### 📦 Stack
 
-## Dependencies
+- **LangChain** — Modular LLM orchestration framework
+- **LlamaIndex** — Data frameworks for LLMs
+- **NVIDIA AI Endpoints** — High-performance inference
+- **JupyterLab** — Interactive development environment
+- **pytest** — Test and validation
 
-- Python >= 3.13
-- [uv](https://github.com/astral-sh/uv) - Fast Python package manager
-- [LangChain](https://python.langchain.com/) - Modular LLM framework
-- [Llama Index](https://docs.llamaindex.ai/) - LLM application frameworks
-- [NVIDIA AI Endpoints](https://github.com/langchain-ai/langchain-nvidia/) - NVIDIA model integrations
-- JupyterLab - Interactive development
-- python-dotenv - Environment variable management
+---
 
-## API Keys Required
+## 🔑 API Keys Required
 
-- **NVIDIA API Key**: Required for all NVIDIA model operations
+| Service | Required | Purpose |
+|---------|---------|---------|
+| NVIDIA | ✅ | All model inference operations |
 
-Configure by editing the `.env` file with your NVIDIA API key.
+### Configuration
 
-## Contributing
+Edit the `.env` file:
 
-1. Fork the repository
-2. Create a feature branch
-3. Make changes and test locally
-4. Submit a pull request
+```bash
+NVIDIA_API_KEY="your-api-key-here"
+```
 
-## License
+---
 
-[Specify your license here]
+## 🛠️ Development
 
-## Contact
+### Running Tests
 
-For questions or issues, please open an issue in the repository.
+```bash
+# Run all tests
+uv run pytest
+
+# Run specific test file
+uv run pytest rag_accuracy_test.py -v
+```
+
+### Linting & Type Checking
+
+```bash
+# Format code
+uv run ruff format
+
+# Lint
+uv run ruff check
+
+# Type check
+uv run mypy
+```
+
+### Contributing Guide
+
+1. **Fork** the repository
+2. **Clone** your fork:
+   ```bash
+   git clone <your-fork-url>
+   ```
+3. **Create a branch**:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+4. **Make changes** and test locally
+5. **Commit** with clear messages:
+   ```bash
+   git commit -m "Add: <description>"
+   ```
+6. **Push** to GitHub:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+7. **Create a Pull Request**
+
+---
+
+## 📝 Guidelines for New Examples
+
+When contributing a new example:
+
+- **[ ]** Document prerequisites and setup
+- **[ ]** Include a working notebook or script
+- **[ ]** Add unit tests for core functionality
+- **[ ]** Include example input/output data
+- **[ ]** Write usage documentation
+- **[ ]** Ensure tests pass in CI
+
+---
+
+## 🐛 Issues & Questions
+
+Found a bug or have a question? [Open an issue](https://github.com/abs_1/AI-Engineering/issues) on GitHub.
+
+## 📄 License
+
+MIT License — See [LICENSE](LICENSE) for details.
