@@ -4,9 +4,6 @@
     <strong>Patterns, tools, and examples for building modern AI applications</strong>
   </p>
   <div style="display: flex; gap: 1rem; justify-content: center; margin: 1rem 0;">
-    <a href="https://github.com/abs_1/AI-Engineering" target="_blank">
-      <img src="https://img.shields.io/badge/GitHub-Abs_1-blue?logo=github&style=for-the-badge" alt="GitHub: Abs_1" />
-    </a>
     <img src="https://img.shields.io/badge/python-3.13+-blue?style=for-the-badge&logo=python" alt="Python 3.13+" />
     <img src="https://img.shields.io/badge/langchain-latest-green?style=for-the-badge&logo=langchain" alt="LangChain" />
     <img src="https://img.shields.io/badge/llama_index-latest-blue?style=for-the-badge&logo=meta" alt="LlamaIndex" />
@@ -199,8 +196,8 @@ When contributing a new example:
 
 ## 🐛 Issues & Questions
 
-Found a bug or have a question? [Open an issue](https://github.com/abs_1/AI-Engineering/issues) on GitHub.
+Found a bug or have a question? [Open an issue](https://github.com/abhi2020-ds/AI-Engineering/issues) on GitHub.
 
 ## 📄 License
 
-MIT License — See [LICENSE](LICENSE) for details.
+MIT License — See [LICENSE.md](LICENSE.md) for details.
